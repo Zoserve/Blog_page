@@ -77,10 +77,12 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow local development and production URLs
-        configuration.setAllowedOrigins(Arrays.asList(
+        // Allow local development and production URLs (including staging previews)
+        configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:5173", 
             "http://localhost:3000",
+            "https://*.vercel.app",
+            "https://*.netlify.app",
             "https://blog.zoserve.com"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
