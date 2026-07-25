@@ -1,0 +1,18 @@
+# Java / Maven target outputs
+backend/target/
+backend/out/
+
+# Node / Vite outputs
+frontend/node_modules/
+frontend/dist/
+
+# IDE / Editor config
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# System logs & files
+*.log
+.DS_Store
