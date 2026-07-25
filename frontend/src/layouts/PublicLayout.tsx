@@ -50,8 +50,8 @@ const PublicLayout: React.FC = () => {
       <header className="sticky top-0 z-50 w-full border-b border-[var(--color-border-light)] bg-white/75 backdrop-blur-md shadow-premium">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/blog" className="flex items-center space-x-3.5 group">
-            <svg className="w-8 h-8 transition-transform group-hover:scale-105 duration-300" viewBox="0 0 100 100" fill="none">
+          <Link to="/blog" className="flex items-center space-x-2 sm:space-x-3.5 group shrink-0">
+            <svg className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-105 duration-300" viewBox="0 0 100 100" fill="none">
               <defs>
                 <linearGradient id="codeBracketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#1A3C6E" />
@@ -79,30 +79,32 @@ const PublicLayout: React.FC = () => {
               {/* Database Core node */}
               <circle cx="50" cy="50" r="8.5" fill="url(#coreNodeGrad)" />
             </svg>
-            <span className="font-bold text-lg tracking-tight text-[var(--color-text-main)] flex items-center">
+            <span className="font-bold text-sm sm:text-lg tracking-tight text-[var(--color-text-main)] flex items-center">
               ZoServe
-              <span className="ml-1.5 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-widest bg-[var(--color-primary-dark)] text-[var(--color-accent)] shadow-sm">
+              <span className="ml-1 sm:ml-1.5 px-1.5 py-0.5 rounded text-[8px] sm:text-[10px] uppercase font-bold tracking-widest bg-[var(--color-primary-dark)] text-[var(--color-accent)] shadow-sm">
                 Blog
               </span>
             </span>
           </Link>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             <a
               href="https://zoserve.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl border border-[var(--color-border-light)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-light)]/5 text-[var(--color-primary-light)] hover:text-[var(--color-primary)] font-bold text-xs transition-all duration-200"
+              className="flex items-center space-x-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl border border-[var(--color-border-light)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-light)]/5 text-[var(--color-primary-light)] hover:text-[var(--color-primary)] font-bold text-[10px] sm:text-xs transition-all duration-200"
             >
-              <span>zoserve.com</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">zoserve.com</span>
+              <span className="sm:hidden">Site</span>
+              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </a>
             <Link
               to="/blog/login"
-              className="px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold shadow-premium transition-all duration-200 cursor-pointer"
+              className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-[10px] sm:text-xs font-bold shadow-premium transition-all duration-200 cursor-pointer"
             >
-              Admin Portal
+              <span className="hidden sm:inline">Admin Portal</span>
+              <span className="sm:hidden">Admin</span>
             </Link>
           </div>
         </div>
