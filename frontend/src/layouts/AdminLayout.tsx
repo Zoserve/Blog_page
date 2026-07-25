@@ -38,9 +38,53 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans">
-      {/* 1. Left Sidebar */}
-      <aside className="w-64 border-r border-slate-200 bg-white flex flex-col shrink-0">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 font-sans">
+      {/* Mobile Top Navbar (lg:hidden) */}
+      <header className="lg:hidden w-full bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm shrink-0">
+        <div className="px-4 h-16 flex items-center justify-between">
+          <Link to="/blog" className="flex items-center space-x-2">
+            <span className="font-bold text-sm text-[var(--color-text-main)] tracking-tight">ZoServe Admin</span>
+          </Link>
+          
+          <div className="flex items-center space-x-1.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path || (item.path !== '/blog/admin' && location.pathname.startsWith(item.path));
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`p-2 rounded-xl transition-all ${
+                    isActive
+                      ? 'bg-[var(--color-primary-light)]/10 text-[var(--color-primary)]'
+                      : 'text-slate-500 hover:bg-slate-100'
+                  }`}
+                  title={item.label}
+                >
+                  <Icon className="w-4.5 h-4.5" />
+                </Link>
+              );
+            })}
+            <Link
+              to="/blog"
+              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100"
+              title="Back to Blog"
+            >
+              <ArrowLeft className="w-4.5 h-4.5" />
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-red-500 hover:bg-red-50 cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-4.5 h-4.5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 1. Left Sidebar (Desktop only) */}
+      <aside className="hidden lg:flex w-64 border-r border-slate-200 bg-white flex-col shrink-0">
         {/* Top Header Logo */}
         <div className="h-16 flex items-center px-6 border-b border-slate-200/60 justify-between">
           <Link to="/blog" className="flex items-center space-x-2.5 group">
@@ -119,8 +163,8 @@ const AdminLayout: React.FC = () => {
 
       {/* 2. Right Content Section */}
       <div className="flex-grow flex flex-col min-h-screen overflow-hidden">
-        {/* Top bar */}
-        <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-8">
+        {/* Top bar (Desktop only) */}
+        <header className="hidden lg:flex h-16 border-b border-slate-200 bg-white items-center justify-between px-8 shrink-0">
           <div>
             <h1 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
               {location.pathname === '/blog/admin' ? 'Overview' : location.pathname.includes('/media') ? 'Library' : 'Content Management'}
@@ -140,7 +184,7 @@ const AdminLayout: React.FC = () => {
         </header>
 
         {/* Content Viewport */}
-        <main className="flex-grow p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+        <main className="flex-grow p-4 lg:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>
