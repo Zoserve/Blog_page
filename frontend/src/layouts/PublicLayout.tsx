@@ -87,16 +87,24 @@ const PublicLayout: React.FC = () => {
             </span>
           </Link>
 
-          {/* Main Website Link (Right side) */}
-          <a
-            href="https://zoserve.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl border border-[var(--color-border-light)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-light)]/5 text-[var(--color-primary-light)] hover:text-[var(--color-primary)] font-bold text-xs transition-all duration-200"
-          >
-            <span>zoserve.com</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-3">
+            <a
+              href="https://zoserve.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl border border-[var(--color-border-light)] hover:border-[var(--color-primary-light)] hover:bg-[var(--color-primary-light)]/5 text-[var(--color-primary-light)] hover:text-[var(--color-primary)] font-bold text-xs transition-all duration-200"
+            >
+              <span>zoserve.com</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+            <Link
+              to="/blog/login"
+              className="px-4 py-2 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold shadow-premium transition-all duration-200 cursor-pointer"
+            >
+              Admin Portal
+            </Link>
+          </div>
         </div>
       </header>
 
