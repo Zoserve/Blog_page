@@ -40,4 +40,21 @@ api.interceptors.response.use(
   }
 );
 
+export const formatImageUrl = (url: string | null | undefined): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    // If it points to local development database values, swap it with the active server URL
+    if (url.includes('localhost:9090') || url.includes('localhost:8080') || url.includes('localhost:8081')) {
+      const relativePathIndex = url.indexOf('/api/');
+      if (relativePathIndex !== -1) {
+        return `${API_SERVER_URL}${url.substring(relativePathIndex)}`;
+      }
+    }
+    return url;
+  }
+  // Ensure it starts with a slash
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  return `${API_SERVER_URL}${cleanUrl}`;
+};
+
 export default api;

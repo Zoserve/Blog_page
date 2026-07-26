@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, BookOpen, Clock, Calendar, ChevronRight, Eye, ArrowRight, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import api, { API_SERVER_URL } from '../services/api';
+import api, { formatImageUrl } from '../services/api';
 import SEO from '../components/SEO';
 
 interface Category {
@@ -226,7 +226,7 @@ const Home: React.FC = () => {
                 >
                   <Link to={`/blog/${featuredBlog.slug}`} className="block aspect-[21/9] w-full bg-slate-100 relative overflow-hidden">
                     <img
-                      src={featuredBlog.heroImage ? `${API_SERVER_URL}${featuredBlog.heroImage}` : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=800'}
+                      src={featuredBlog.heroImage ? formatImageUrl(featuredBlog.heroImage) : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=800'}
                       alt={featuredBlog.title}
                       className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                       onError={(e) => {
@@ -284,7 +284,7 @@ const Home: React.FC = () => {
                   >
                     <Link to={`/blog/${blog.slug}`} className="aspect-[16/10] w-full bg-slate-100 relative overflow-hidden block">
                       <img
-                        src={blog.heroImage ? `${API_SERVER_URL}${blog.heroImage}` : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400'}
+                        src={blog.heroImage ? formatImageUrl(blog.heroImage) : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400'}
                         alt={blog.title}
                         className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                         onError={(e) => {
