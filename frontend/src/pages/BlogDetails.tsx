@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, Eye, Link as LinkIcon, MessageSquare, ChevronLeft, ChevronRight, User, AlertCircle, ArrowUpRight, HelpCircle, Check } from 'lucide-react';
-import api from '../services/api';
+import api, { API_SERVER_URL } from '../services/api';
 import { parseMarkdownToHtml } from '../utils/markdown';
 import SEO from '../components/SEO';
 
@@ -205,7 +205,7 @@ const BlogDetails: React.FC = () => {
         title={blog.seoTitle}
         description={blog.seoDescription}
         keywords={blog.metaKeywords}
-        ogImage={blog.ogImage ? `http://localhost:9090${blog.ogImage}` : undefined}
+        ogImage={blog.ogImage ? `${API_SERVER_URL}${blog.ogImage}` : undefined}
         canonicalUrl={blog.canonicalUrl}
         faqSchema={blog.faqSchema}
         breadcrumbSchema={blog.breadcrumbSchema}
@@ -284,7 +284,7 @@ const BlogDetails: React.FC = () => {
       {blog.heroImage && (
         <div className="max-w-5xl mx-auto px-4 my-8 relative z-10">
           <img
-            src={`http://localhost:9090${blog.heroImage}`}
+            src={`${API_SERVER_URL}${blog.heroImage}`}
             alt={blog.title}
             className="w-full rounded-2xl object-cover aspect-[21/9] shadow-md border border-slate-200/50"
             onError={(e) => {

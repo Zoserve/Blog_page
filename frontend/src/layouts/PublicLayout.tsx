@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { ArrowRight, Rss, Globe, ExternalLink } from 'lucide-react';
-import api from '../services/api';
+import api, { API_SERVER_URL } from '../services/api';
 
 interface Category {
   id: number;
@@ -174,13 +174,13 @@ const PublicLayout: React.FC = () => {
               <h4 className="text-white text-xs font-semibold uppercase tracking-wider mb-4">SEO Feeds</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="http://localhost:9090/api/v1/public/rss.xml" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-white transition-colors">
+                  <a href={`${API_SERVER_URL}/api/v1/public/rss.xml`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-white transition-colors">
                     <Rss className="w-3.5 h-3.5 text-orange-500" />
                     <span>RSS Feed</span>
                   </a>
                 </li>
                 <li>
-                  <a href="http://localhost:9090/api/v1/public/sitemap.xml" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-white transition-colors">
+                  <a href={`${API_SERVER_URL}/api/v1/public/sitemap.xml`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-white transition-colors">
                     <Globe className="w-3.5 h-3.5 text-blue-400" />
                     <span>Sitemap.xml</span>
                   </a>

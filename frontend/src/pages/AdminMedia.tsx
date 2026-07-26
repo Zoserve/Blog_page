@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Trash2, Copy, Check, Search, AlertCircle, FileImage } from 'lucide-react';
-import api from '../services/api';
+import api, { API_SERVER_URL } from '../services/api';
 
 interface ImageMedia {
   id: number;
@@ -79,7 +79,7 @@ const AdminMedia: React.FC = () => {
   const handleCopyLink = (img: ImageMedia) => {
     // We copy the absolute backend URL, or relative URL depending on user environments. 
     // Absolute backend URL is best for testing markdown renderer locally. Let's copy absolute URL.
-    const absoluteBackendUrl = `http://localhost:9090${img.url}`;
+    const absoluteBackendUrl = `${API_SERVER_URL}${img.url}`;
     
     navigator.clipboard.writeText(absoluteBackendUrl);
     setCopiedId(img.id);
@@ -162,7 +162,7 @@ const AdminMedia: React.FC = () => {
               {/* Preview */}
               <div className="aspect-square w-full bg-slate-100 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
                 <img
-                  src={`http://localhost:9090${img.url}`}
+                  src={`${API_SERVER_URL}${img.url}`}
                   alt={img.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
