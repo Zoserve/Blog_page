@@ -70,8 +70,9 @@ const BlogDetails: React.FC = () => {
       setLoading(true);
       setError('');
       try {
-        // Fetch main blog
-        const res = await api.get(`/public/blogs/${slug}`);
+        // Normalize slug to lowercase so /blog/My-Post and /blog/my-post resolve identically
+        const normalizedSlug = slug?.toLowerCase();
+        const res = await api.get(`/public/blogs/${normalizedSlug}`);
         const currentBlog = res.data;
         setBlog(currentBlog);
 
@@ -127,10 +128,10 @@ const BlogDetails: React.FC = () => {
 
   const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authorName || !authorEmail || !commentText) return;
+    if (!authorName.trim() || !authorEmail.trim() || !commentText.trim()) return;
 
     try {
-      const res = await api.post(`/public/blogs/${slug}/comments`, {
+      await api.post(`/public/blogs/${slug}/comments`, {
         authorName,
         authorEmail,
         content: commentText
@@ -286,6 +287,7 @@ const BlogDetails: React.FC = () => {
           <img
             src={formatImageUrl(blog.heroImage)}
             alt={blog.title}
+            loading="lazy"
             className="w-full rounded-2xl object-cover aspect-[21/9] shadow-md border border-slate-200/50"
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1200';

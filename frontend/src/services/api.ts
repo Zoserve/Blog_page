@@ -5,6 +5,7 @@ export const API_SERVER_URL = API_BASE_URL.replace('/api/v1', '');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 10000, // 10 s — prevents forever-hanging requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,7 +14,8 @@ const api = axios.create({
 // Request interceptor to add authorization token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Check localStorage first (rememberMe=true), then sessionStorage (rememberMe=false)
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

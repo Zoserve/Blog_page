@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+/* Google Fonts are loaded via <link> preconnect tags in index.html (with display=swap).
+   Do NOT add @import url('fonts.googleapis.com/...') here — it is render-blocking
+   and does not support font-display: swap. */
 
 @import "tailwindcss";
 
@@ -172,3 +174,106 @@
 .animate-pulse-slow {
   animation: pulse-slow 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* FloatingMenu / FloatingBlockMenu popover animation */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateX(-6px) translateY(-50%); }
+  to   { opacity: 1; transform: translateX(0)    translateY(-50%); }
+}
+
+/* ── TipTap WYSIWYG editor ──────────────────────────────────────────────── */
+.tiptap-editor {
+  color: var(--color-text-muted);
+  @apply leading-relaxed text-[16px];
+}
+
+.tiptap-editor > * + * {
+  @apply mt-4;
+}
+
+.tiptap-editor h1 {
+  color: var(--color-text-main);
+  @apply text-3xl font-extrabold mt-8 mb-3 tracking-tight;
+}
+.tiptap-editor h2 {
+  color: var(--color-text-main);
+  @apply text-2xl font-bold mt-7 mb-3 tracking-tight;
+}
+.tiptap-editor h3 {
+  color: var(--color-text-main);
+  @apply text-xl font-semibold mt-6 mb-2 tracking-tight;
+}
+
+.tiptap-editor p {
+  @apply mb-4 leading-relaxed;
+}
+
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-slate-400 float-left h-0 pointer-events-none;
+}
+
+.tiptap-editor a {
+  color: var(--color-primary-light);
+  @apply underline font-medium transition-colors hover:text-[var(--color-primary)];
+}
+
+.tiptap-editor strong { color: var(--color-text-main); @apply font-semibold; }
+
+.tiptap-editor blockquote {
+  border-left: 4px solid var(--color-accent);
+  color: var(--color-text-muted);
+  background-color: rgba(46, 212, 122, 0.05);
+  @apply pl-5 italic my-5 py-3 pr-4 rounded-r-lg;
+}
+
+.tiptap-editor code {
+  @apply px-1.5 py-0.5 bg-slate-100 text-red-600 rounded text-sm font-mono;
+}
+
+.tiptap-editor pre {
+  @apply p-4 bg-slate-900 text-slate-100 rounded-xl overflow-x-auto font-mono text-sm my-5 border border-slate-800;
+}
+.tiptap-editor pre code {
+  @apply p-0 bg-transparent text-slate-100;
+}
+
+.tiptap-editor ul { @apply list-disc pl-6 mb-5 space-y-1.5; }
+.tiptap-editor ol { @apply list-decimal pl-6 mb-5 space-y-1.5; }
+
+.tiptap-editor img {
+  @apply rounded-2xl my-6 mx-auto max-h-[500px] object-cover shadow-sm border border-slate-100;
+}
+
+/* TipTap table styles */
+.tiptap-editor table {
+  @apply w-full border-collapse my-5 text-sm;
+}
+.tiptap-editor th {
+  color: var(--color-text-main);
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-light);
+  @apply px-4 py-2.5 font-semibold text-left;
+}
+.tiptap-editor td {
+  border: 1px solid var(--color-border-light);
+  @apply px-4 py-2.5;
+}
+/* Selected cell highlight */
+.tiptap-editor .selectedCell::after {
+  background: rgba(36, 80, 143, 0.08);
+  content: "";
+  @apply absolute inset-0 pointer-events-none;
+}
+
+/* YouTube iframe wrapper */
+.tiptap-editor iframe {
+  @apply w-full aspect-video rounded-2xl my-6;
+}
+
+/* BubbleMenu base styling (tippy overrides) */
+.tippy-box[data-theme~="editor-bubble"] {
+  background: transparent;
+  box-shadow: none;
+}
+

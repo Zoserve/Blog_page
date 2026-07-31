@@ -30,47 +30,65 @@ const Home: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter params
+  // Filter params (derived from URL — source of truth)
   const categoryParam = searchParams.get('category') || '';
   const searchParam = searchParams.get('search') || '';
   const [searchQuery, setSearchQuery] = useState(searchParam);
-  
-  // Pagination
-  const [page, setPage] = useState(0);
+
+  // Pagination — read from URL so pages are bookmarkable/shareable
+  const pageParam = parseInt(searchParams.get('page') || '0', 10);
+  const page = isNaN(pageParam) || pageParam < 0 ? 0 : pageParam;
+
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
+  // Sync local search input when URL changes (e.g. browser back/forward)
   useEffect(() => {
-    // Sync search query input
     setSearchQuery(searchParam);
-    setPage(0); // Reset page on filter change
+  }, [searchParam, categoryParam]);
+
+  // Reset page to 0 in URL when filters change
+  useEffect(() => {
+    if (page !== 0) {
+      setSearchParams(prev => { prev.delete('page'); return prev; }, { replace: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParam, categoryParam]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchCategories = async () => {
       try {
-        const res = await api.get('/public/categories');
+        const res = await api.get('/public/categories', { signal: controller.signal });
         setCategories(res.data);
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        if (err.name !== 'CanceledError') console.error('Categories fetch failed', err);
       }
     };
     fetchCategories();
 
     const fetchTrending = async () => {
       try {
-        const res = await api.get('/public/blogs/trending');
+        const res = await api.get('/public/blogs/trending', { signal: controller.signal });
         setTrending(res.data);
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        if (err.name !== 'CanceledError') console.error('Trending fetch failed', err);
       }
     };
     fetchTrending();
+
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    // AbortController cancels in-flight requests when filters change rapidly
+    const controller = new AbortController();
+
     const fetchBlogs = async () => {
       setLoading(true);
+      setFetchError('');
       try {
         const res = await api.get('/public/blogs', {
           params: {
@@ -80,42 +98,55 @@ const Home: React.FC = () => {
             size: 6,
             sortBy: 'publishedAt',
             direction: 'DESC'
-          }
+          },
+          signal: controller.signal
         });
         setBlogs(res.data.content);
         setTotalPages(res.data.totalPages);
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        if (err.name !== 'CanceledError') {
+          console.error('Blog list fetch failed', err);
+          setFetchError('Failed to load articles. Please check your connection and try again.');
+        }
       } finally {
         setLoading(false);
       }
     };
     fetchBlogs();
+
+    // Cleanup: abort the stale request when deps change or component unmounts
+    return () => controller.abort();
   }, [page, categoryParam, searchParam]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setSearchParams({ search: searchQuery.trim(), ...(categoryParam ? { category: categoryParam } : {}) });
-    } else {
-      const params: any = {};
-      if (categoryParam) params.category = categoryParam;
-      setSearchParams(params);
-    }
+    const trimmed = searchQuery.trim();
+    const params: Record<string, string> = {};
+    if (trimmed) params.search = trimmed;
+    if (categoryParam) params.category = categoryParam;
+    setSearchParams(params);
   };
 
   const handleCategorySelect = (slug: string) => {
-    if (categoryParam === slug) {
-      // Toggle off
-      const params: any = {};
-      if (searchParam) params.search = searchParam;
-      setSearchParams(params);
-    } else {
-      setSearchParams({ category: slug, ...(searchParam ? { search: searchParam } : {}) });
-    }
+    const params: Record<string, string> = {};
+    if (categoryParam !== slug) params.category = slug; // toggle off if already selected
+    if (searchParam) params.search = searchParam;
+    setSearchParams(params);
   };
 
-  // Split featured blog from list
+  const handlePageChange = (newPage: number) => {
+    setSearchParams(prev => {
+      if (newPage === 0) {
+        prev.delete('page');
+      } else {
+        prev.set('page', String(newPage));
+      }
+      return prev;
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Split featured blog from list (only on page 0 with no active text search)
   const featuredBlog = page === 0 && !searchParam && blogs.length > 0 ? blogs[0] : null;
   const latestBlogs = featuredBlog ? blogs.slice(1) : blogs;
 
@@ -156,11 +187,11 @@ const Home: React.FC = () => {
       {/* 2. SEARCH & FILTER CONTROLS */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200/60 pb-6">
-          {/* Categories Horizontal scroll tags */}
+          {/* Categories Horizontal scroll tags — py-2.5 for ≥40px touch target */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth flex-grow">
             <button
               onClick={() => setSearchParams(searchParam ? { search: searchParam } : {})}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide shrink-0 transition-all ${
+              className={`px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide shrink-0 transition-all ${
                 !categoryParam
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-800'
@@ -174,7 +205,7 @@ const Home: React.FC = () => {
                 <button
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.slug)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide shrink-0 transition-all cursor-pointer ${
+                  className={`px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide shrink-0 transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-[var(--color-primary)] text-white shadow-sm shadow-[var(--color-primary)]/10'
                       : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-800'
@@ -192,6 +223,7 @@ const Home: React.FC = () => {
               type="text"
               placeholder="Search..."
               value={searchQuery}
+              maxLength={100}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[var(--color-primary-light)] focus:ring-2 focus:ring-slate-100 transition-all text-xs text-slate-700 placeholder:text-slate-400"
             />
@@ -202,16 +234,29 @@ const Home: React.FC = () => {
 
       {/* 3. MAIN BLOGS CONTENT GRID */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {loading ? (
+        {/* Visible error state with retry — replaces the silent console.error */}
+        {fetchError && !loading && (
+          <div className="py-16 text-center bg-white border border-red-100 rounded-2xl p-8 max-w-xl mx-auto shadow-premium">
+            <BookOpen className="w-12 h-12 text-red-300 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-red-600">{fetchError}</p>
+            <button
+              onClick={() => setSearchParams(prev => { prev.set('_r', Date.now().toString()); return prev; })}
+              className="mt-4 px-5 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold rounded-lg transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        {!fetchError && loading ? (
           <div className="py-24 text-center">
             <div className="w-8 h-8 border-4 border-[var(--color-primary-light)] border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
-        ) : blogs.length === 0 ? (
+        ) : !fetchError && blogs.length === 0 ? (
           <div className="py-24 text-center bg-white border border-slate-200 rounded-2xl p-8 text-slate-400 max-w-xl mx-auto shadow-premium">
             <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <p className="text-sm font-medium">No articles matched your search filter criteria. Try adjusting keywords.</p>
           </div>
-        ) : (
+        ) : !fetchError ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
             {/* Left/Middle Column (Blogs Listing) */}
@@ -228,6 +273,8 @@ const Home: React.FC = () => {
                     <img
                       src={featuredBlog.heroImage ? formatImageUrl(featuredBlog.heroImage) : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=800'}
                       alt={featuredBlog.title}
+                      fetchPriority="high"
+                      loading="eager"
                       className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=800';
@@ -286,6 +333,7 @@ const Home: React.FC = () => {
                       <img
                         src={blog.heroImage ? formatImageUrl(blog.heroImage) : 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400'}
                         alt={blog.title}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=400';
@@ -319,12 +367,12 @@ const Home: React.FC = () => {
                 ))}
               </div>
 
-              {/* PAGINATION ROW */}
+              {/* PAGINATION ROW — page persisted in URL (?page=N) for shareability */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-6 border-t border-slate-200 text-xs font-semibold text-slate-500">
                   <button
                     disabled={page === 0}
-                    onClick={() => setPage(page - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                     className="px-4 py-2 border border-slate-200 rounded-xl bg-white hover:bg-slate-100 disabled:opacity-40 transition-colors"
                   >
                     ← Previous Page
@@ -332,7 +380,7 @@ const Home: React.FC = () => {
                   <span>Page {page + 1} of {totalPages}</span>
                   <button
                     disabled={page >= totalPages - 1}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                     className="px-4 py-2 border border-slate-200 rounded-xl bg-white hover:bg-slate-100 disabled:opacity-40 transition-colors"
                   >
                     Next Page →
@@ -390,7 +438,7 @@ const Home: React.FC = () => {
               )}
             </div>
           </div>
-        )}
+        ) : null}
       </section>
     </div>
   );

@@ -26,13 +26,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Restore authentication on boot
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    // Restore authentication on boot.
+    // localStorage = rememberMe (persists across browser restarts)
+    // sessionStorage = session-only (cleared when tab/browser closes)
+    const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
 
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } catch {
+        // Corrupted storage — clear and force re-login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
@@ -48,16 +58,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(jwt);
       setUser(userProfile);
 
-      // Commit to storage
+      // Commit to storage based on rememberMe preference
       if (rememberMe) {
+        // Persistent — survives browser restart
         localStorage.setItem('token', jwt);
         localStorage.setItem('user', JSON.stringify(userProfile));
+        // Clear any stale session-only token
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
       } else {
+        // Session-only — cleared when the tab/browser is closed
         sessionStorage.setItem('token', jwt);
         sessionStorage.setItem('user', JSON.stringify(userProfile));
-        // Also add fallback to local storage so interceptor can fetch it, but clear it on tab close
-        localStorage.setItem('token', jwt);
-        localStorage.setItem('user', JSON.stringify(userProfile));
+        // Remove any existing persistent token so the user truly isn't remembered
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     } catch (error) {
       throw error;

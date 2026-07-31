@@ -93,10 +93,22 @@ const SEO: React.FC<SEOProps> = ({
     }
 
     // 5. Canonical Link
+    // Strip transient params (search, page) that produce duplicate-content variants.
+    // We intentionally KEEP ?category= so category-filtered pages are indexed separately.
     if (canonicalUrl) {
       setLinkTag('canonical', canonicalUrl);
     } else {
-      setLinkTag('canonical', window.location.href);
+      const cleanCanonical = (() => {
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('search');
+          url.searchParams.delete('page');
+          return url.toString();
+        } catch {
+          return window.location.href;
+        }
+      })();
+      setLinkTag('canonical', cleanCanonical);
     }
 
     // 6. JSON-LD Schemas

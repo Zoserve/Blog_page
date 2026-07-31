@@ -7,6 +7,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Home from './pages/Home';
 import BlogDetails from './pages/BlogDetails';
 import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -38,8 +39,8 @@ function App() {
             <Route path="media" element={<AdminMedia />} />
           </Route>
 
-          {/* Wildcard Fallback */}
-          <Route path="*" element={<Navigate to="/blog" replace />} />
+          {/* Wildcard Fallback — shows styled 404, not a silent redirect */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

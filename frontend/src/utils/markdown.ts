@@ -1,3 +1,13 @@
+/**
+ * Rejects javascript: and data: URI schemes to prevent XSS.
+ * Returns '#' for any unsafe URL so the attribute is always valid but harmless.
+ */
+const sanitizeUrl = (url: string): string => {
+  const trimmed = url.trim();
+  if (/^javascript:/i.test(trimmed) || /^data:/i.test(trimmed)) return '#';
+  return trimmed;
+};
+
 export function parseMarkdownToHtml(markdown: string): string {
   if (!markdown) return '';
 
@@ -19,7 +29,9 @@ export function parseMarkdownToHtml(markdown: string): string {
 
   // 4. Images (![alt](url))
   html = html.replace(/!\[(.*?)\]\((.*?)\)/g, (_, alt, url) => {
-    return `<img src="${url}" alt="${alt}" class="rounded-2xl shadow-sm my-6 max-h-[450px] object-cover mx-auto" />`;
+    const safeUrl = sanitizeUrl(url);
+    const safeAlt = alt.replace(/"/g, '&quot;');
+    return `<img src="${safeUrl}" alt="${safeAlt}" loading="lazy" class="rounded-2xl shadow-sm my-6 max-h-[450px] object-cover mx-auto" />`;
   });
 
   // 5. Links ([text](url))
@@ -36,7 +48,7 @@ export function parseMarkdownToHtml(markdown: string): string {
         return `<div class="aspect-video w-full rounded-2xl overflow-hidden my-6 shadow-sm"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="w-full h-full"></iframe></div>`;
       }
     }
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+    return `<a href="${sanitizeUrl(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
   });
 
   // 6. Blockquotes (> quote)
